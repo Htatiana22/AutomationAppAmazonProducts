@@ -1,0 +1,68 @@
+buildscript {
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "net.serenity-bdd:serenity-single-page-report:3.3.0"
+        classpath "net.serenity-bdd:serenity-gradle-plugin:3.4.2"
+    }
+}
+
+plugins {
+    id "net.serenity-bdd.serenity-gradle-plugin" version "3.3.0"
+    id 'java'
+}
+
+defaultTasks 'clear', 'test', 'aggregate'
+group 'com.wipipedia'
+version '1.0-SNAPSHOT'
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'net.serenity-bdd:serenity-junit5:3.3.0'
+    implementation 'net.serenity-bdd:serenity-cucumber:3.6.0'
+    implementation 'net.serenity-bdd:serenity-core:3.6.0'
+    implementation 'net.serenity-bdd:serenity-screenplay:3.4.0'
+    implementation 'net.serenity-bdd:serenity-screenplay-webdriver:3.4.0'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    implementation 'io.appium:java-client:8.5.1'
+
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.1.0'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.30'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.0'
+
+    implementation group: 'org.apache.poi', name: 'poi', version: '3.17'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+    systemProperties System.getProperties()
+}
+
+tasks.withType(JavaCompile) {
+    options.annotationProcessorPath = configurations.annotationProcessor
+}
+
+serenity{
+    testRoot="com.amazon.runners"
+    requirementsBaseDir=["src/test/resources/features/"]
+    reports=["single-page-html"]
+}
+
+gradle.startParameter.continueOnFailure = true
+test.finalizedBy(aggregate)
